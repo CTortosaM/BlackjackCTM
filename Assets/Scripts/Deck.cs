@@ -29,27 +29,30 @@ public class Deck : MonoBehaviour
 
     private void InitCardValues()
     {
+        int i = 0;
         /*TODO:
          * Asignar un valor a cada una de las 52 cartas del atributo "values".
          * En principio, la posición de cada valor se deberá corresponder con la posición de faces. 
          * Por ejemplo, si en faces[1] hay un 2 de corazones, en values[1] debería haber un 2.
          */
         int paso = 1;
-        for(cardIndex = 0; cardIndex < 52; cardIndex++)
+        for(i = 0; i < 52; i++)
         {
-            if (cardIndex % 13 == 0) {
-                values[cardIndex] = 11;
-            } else if (cardIndex == 10 || cardIndex == 11 || cardIndex == 12|| cardIndex == 23 || cardIndex == 24 || cardIndex == 25 || cardIndex == 36 || cardIndex == 37 || cardIndex == 38 || cardIndex == 49 || cardIndex == 50 || cardIndex == 51)
+            if (i % 13 == 0) {
+                values[i] = 11;
+            } else if (i == 10 ||i == 11 || i == 12||i == 23 || i == 24 || i == 25 || i == 36 || i== 37 || i == 38 ||i == 49 || i == 50 ||i == 51)
             {
-                values[cardIndex] = 10;
+                values[i] = 10;
             }
             else
             {
-                values[cardIndex] = paso;
+                values[i] = paso;
             }
 
             paso++;
             if (paso > 14) paso = 2;
+
+            Debug.Log(values[i]);
         }
         
     }
