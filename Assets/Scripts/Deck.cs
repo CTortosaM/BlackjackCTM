@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 public class Deck : MonoBehaviour
 {
@@ -51,8 +53,6 @@ public class Deck : MonoBehaviour
 
             paso++;
             if (paso > 14) paso = 2;
-
-            Debug.Log(values[i]);
         }
         
     }
@@ -63,7 +63,9 @@ public class Deck : MonoBehaviour
          * Barajar las cartas aleatoriamente.
          * El método Random.Range(0,n), devuelve un valor entre 0 y n-1
          * Si lo necesitas, puedes definir nuevos arrays.
-         */       
+         */
+
+        
     }
 
     void StartGame()
@@ -112,13 +114,19 @@ public class Deck : MonoBehaviour
         /*TODO: 
          * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
          */
+         
         
         //Repartimos carta al jugador
         PushPlayer();
 
         /*TODO:
          * Comprobamos si el jugador ya ha perdido y mostramos mensaje
-         */      
+         * 
+         */
+         if(player.GetComponent<CardHand>().points > 21)
+        {
+            finalMessage.text = "Perdiste liebres";
+        }
 
     }
 
