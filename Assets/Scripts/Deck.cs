@@ -42,7 +42,8 @@ public class Deck : MonoBehaviour
         {
             if (i % 13 == 0) {
                 values[i] = 11;
-            } else if (i == 10 ||i == 11 || i == 12||i == 23 || i == 24 || i == 25 || i == 36 || i== 37 || i == 38 ||i == 49 || i == 50 ||i == 51)
+            } else if (i == 10 ||i == 11 || i == 12||i == 23 || i == 24 || i == 25 || i == 36 || i== 37 
+                || i == 38 ||i == 49 || i == 50 ||i == 51)
             {
                 values[i] = 10;
             }
@@ -64,8 +65,25 @@ public class Deck : MonoBehaviour
          * El método Random.Range(0,n), devuelve un valor entre 0 y n-1
          * Si lo necesitas, puedes definir nuevos arrays.
          */
-
-        
+       
+        int index;
+        List<int> usedIndexes = new List<int>();
+        Sprite[] newSpritesOrder = new Sprite[52];
+        int[] newDeck = new int[52];
+        for (int i = 0; i < 52; i++)
+        {
+            index = UnityEngine.Random.Range(0, 52);
+            while (usedIndexes.Contains(index))
+            {
+                index = UnityEngine.Random.Range(0, 52);
+                Debug.Log("Cambio el valor del index");
+            }
+            usedIndexes.Add(index);
+            newDeck[i] = values[index];
+            newSpritesOrder[i] = faces[index];
+        }
+        values = newDeck;
+        faces = newSpritesOrder;
     }
 
     void StartGame()
