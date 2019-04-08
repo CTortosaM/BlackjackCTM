@@ -181,7 +181,7 @@ public class Deck : MonoBehaviour
             return;
         }
 
-
+        finalMessage.text = "Empate";
 
          
          
@@ -204,16 +204,19 @@ public class Deck : MonoBehaviour
         if (playerHand.points == 21 && dealerHand.points == 21)
         {
             finalMessage.text = "Aquí ganamos todos";
+            dealerHand.InitialToggle();
             return;
         }
         if (playerHand.points == 21 || dealerHand.points > 21)
         {
             finalMessage.text = "Ganaste champion";
+            dealerHand.InitialToggle();
             return;
         }
         if (dealerHand.points == 21 || playerHand.points > 21)
         {
             finalMessage.text = "Pulsen F en sus teclados";
+            dealerHand.InitialToggle();
             return;
         }
 
