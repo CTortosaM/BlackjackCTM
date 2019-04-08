@@ -14,17 +14,22 @@ public class Deck : MonoBehaviour
     public Text finalMessage;
     public Text probMessage;
 
+    private CardHand playerHand;
+    private CardHand dealerHand;
+
     public int[] values = new int[52];
     int cardIndex = 0;    
        
     private void Awake()
-    {    
+    {
         InitCardValues();        
 
     }
 
     private void Start()
     {
+        playerHand = player.GetComponent<CardHand>();
+        dealerHand = dealer.GetComponent<CardHand>();
         ShuffleCards();
         StartGame();        
     }
@@ -95,7 +100,10 @@ public class Deck : MonoBehaviour
             /*TODO:
              * Si alguno de los dos obtiene Blackjack, termina el juego y mostramos mensaje
              */
+            
         }
+        CheckVictory();
+
     }
 
     private void CalculateProbabilities()
@@ -113,7 +121,8 @@ public class Deck : MonoBehaviour
         /*TODO:
          * Dependiendo de cómo se implemente ShuffleCards, es posible que haya que cambiar el índice.
          */
-        dealer.GetComponent<CardHand>().Push(faces[cardIndex],values[cardIndex]);
+        dealerHand.Push(faces[cardIndex], values[cardIndex]);
+        Debug.Log("Dealer: " + values[cardIndex]);
         cardIndex++;        
     }
 
@@ -122,17 +131,14 @@ public class Deck : MonoBehaviour
         /*TODO:
          * Dependiendo de cómo se implemente ShuffleCards, es posible que haya que cambiar el índice.
          */
-        player.GetComponent<CardHand>().Push(faces[cardIndex], values[cardIndex]/*,cardCopy*/);
+        playerHand.Push(faces[cardIndex], values[cardIndex]);
+        Debug.Log("Player: " + values[cardIndex]);
         cardIndex++;
         CalculateProbabilities();
     }       
 
     public void Hit()
     {
-        /*TODO: 
-         * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
-         */
-         
         
         //Repartimos carta al jugador
         PushPlayer();
@@ -141,10 +147,7 @@ public class Deck : MonoBehaviour
          * Comprobamos si el jugador ya ha perdido y mostramos mensaje
          * 
          */
-         if(player.GetComponent<CardHand>().points > 21)
-        {
-            finalMessage.text = "Perdiste liebres";
-        }
+        CheckVictory();
 
     }
 
@@ -153,12 +156,17 @@ public class Deck : MonoBehaviour
         /*TODO: 
          * Si estamos en la mano inicial, debemos voltear la primera carta del dealer.
          */
+        dealerHand.InitialToggle();
 
         /*TODO:
          * Repartimos cartas al dealer si tiene 16 puntos o menos
          * El dealer se planta al obtener 17 puntos o más
          * Mostramos el mensaje del que ha ganado
-         */                
+         */
+         if(dealerHand.points <= 16) dealerHand.Push(faces[cardIndex], values[cardIndex]);
+
+        cardIndex++;
+         
          
     }
 
@@ -172,6 +180,26 @@ public class Deck : MonoBehaviour
         cardIndex = 0;
         ShuffleCards();
         StartGame();
+    }
+
+    void CheckVictory()
+    {
+        if (playerHand.points == 21 && dealerHand.points == 21)
+        {
+            finalMessage.text = "Aquí ganamos todos";
+            return;
+        }
+        if (playerHand.points == 21 || dealerHand.points > 21)
+        {
+            finalMessage.text = "Ganaste champion";
+            return;
+        }
+        if (dealerHand.points == 21 || playerHand.points > 21)
+        {
+            finalMessage.text = "Pulsen F en sus teclados";
+            return;
+        }
+
     }
     
 }
