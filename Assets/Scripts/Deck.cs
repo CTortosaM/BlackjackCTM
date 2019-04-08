@@ -163,9 +163,26 @@ public class Deck : MonoBehaviour
          * El dealer se planta al obtener 17 puntos o más
          * Mostramos el mensaje del que ha ganado
          */
-         if(dealerHand.points <= 16) dealerHand.Push(faces[cardIndex], values[cardIndex]);
+         while(dealerHand.points < 17)
+        {
+            PushDealer();
+        }
 
-        cardIndex++;
+
+        if(playerHand.points > dealerHand.points && playerHand.points < 22 || dealerHand.points > 21)
+        {
+            finalMessage.text = "Enhorabuena champion";
+            return;
+        } 
+
+        if(dealerHand.points > playerHand.points && dealerHand.points < 22)
+        {
+            finalMessage.text = "Pulsen F en sus telcados";
+            return;
+        }
+
+
+
          
          
     }
