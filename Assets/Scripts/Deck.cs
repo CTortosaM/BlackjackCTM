@@ -18,6 +18,7 @@ public class Deck : MonoBehaviour
     private CardHand dealerHand;
 
     public int[] values = new int[52];
+    private int[] givenValues = new int[52];
     int cardIndex = 0;    
        
     private void Awake()
@@ -81,7 +82,6 @@ public class Deck : MonoBehaviour
             while (usedIndexes.Contains(index))
             {
                 index = UnityEngine.Random.Range(0, 52);
-                Debug.Log("Cambio el valor del index");
             }
             usedIndexes.Add(index);
             newDeck[i] = values[index];
@@ -95,8 +95,8 @@ public class Deck : MonoBehaviour
     {
         for (int i = 0; i < 2; i++)
         {
-            PushPlayer();
             PushDealer();
+            PushPlayer();
             /*TODO:
              * Si alguno de los dos obtiene Blackjack, termina el juego y mostramos mensaje
              */
@@ -108,12 +108,73 @@ public class Deck : MonoBehaviour
 
     private void CalculateProbabilities()
     {
+        float dealerConMasChance = 0f;
+        float pasarDe21 = 0f;
+        float entre17y21 = 0f;
         /*TODO:
          * Calcular las probabilidades de:
          * - Teniendo la carta oculta, probabilidad de que el dealer tenga más puntuación que el jugador
          * - Probabilidad de que el jugador obtenga entre un 17 y un 21 si pide una carta
          * - Probabilidad de que el jugador obtenga más de 21 si pide una carta          
          */
+
+        int visiblePoints = dealerHand.points - dealerHand.cards[0].GetComponent<CardModel>().value;
+        int diferenciaPuntos = visiblePoints - playerHand.points;
+        if (diferenciaPuntos >= 0)
+        {
+            dealerConMasChance = 100f;
+        }
+        else
+        {
+            int necesario = playerHand.points - visiblePoints + 1;
+            int valido = necesario; 
+            while(valido <= 11)
+            {
+                dealerConMasChance += probabilidadDeValor(valido);
+                valido++;
+            }
+            
+        }
+
+        //Probabilidad de más de 21
+        int diferenciaA21 = 22 - playerHand.points;
+        if(diferenciaA21 > 11)
+        {
+            pasarDe21 = 0;
+        } else
+        {
+            while (diferenciaA21 <= 11)
+            {
+                pasarDe21 += probabilidadDeValor(diferenciaA21);
+                diferenciaA21++;
+            }
+        }
+
+
+        //Probabilidad de entre 17 y 21
+        int diferenciaA17 = 17 - playerHand.points;
+        int diferenciaHasta21 = 21 - playerHand.points;
+        if(diferenciaA17 > 0)
+        {
+            if (diferenciaA17 > 11)
+            {
+                entre17y21 = 0f;
+            }
+            else
+            {
+                while (diferenciaA17 <= 11)
+                {
+                    entre17y21 += probabilidadDeValor(diferenciaA17);
+                    diferenciaA17++;
+                }
+
+                entre17y21 -= pasarDe21;
+            }
+        }
+        
+
+        actualizarProbText(dealerConMasChance, pasarDe21, entre17y21);
+
     }
 
     void PushDealer()
@@ -123,6 +184,7 @@ public class Deck : MonoBehaviour
          */
         dealerHand.Push(faces[cardIndex], values[cardIndex]);
         Debug.Log("Dealer: " + values[cardIndex]);
+        givenValues[cardIndex] = values[cardIndex];
         cardIndex++;        
     }
 
@@ -133,6 +195,7 @@ public class Deck : MonoBehaviour
          */
         playerHand.Push(faces[cardIndex], values[cardIndex]);
         Debug.Log("Player: " + values[cardIndex]);
+        givenValues[cardIndex] = values[cardIndex];
         cardIndex++;
         CalculateProbabilities();
     }       
@@ -171,13 +234,13 @@ public class Deck : MonoBehaviour
 
         if(playerHand.points > dealerHand.points && playerHand.points < 22 || dealerHand.points > 21)
         {
-            finalMessage.text = "Enhorabuena champion";
+            finalMessage.text = "Enhorabuena";
             return;
         } 
 
         if(dealerHand.points > playerHand.points && dealerHand.points < 22)
         {
-            finalMessage.text = "Pulsen F en sus telcados";
+            finalMessage.text = "Lástima";
             return;
         }
 
@@ -203,23 +266,57 @@ public class Deck : MonoBehaviour
     {
         if (playerHand.points == 21 && dealerHand.points == 21)
         {
-            finalMessage.text = "Aquí ganamos todos";
+            finalMessage.text = "Empate";
             dealerHand.InitialToggle();
             return;
         }
         if (playerHand.points == 21 || dealerHand.points > 21)
         {
-            finalMessage.text = "Ganaste champion";
+            finalMessage.text = "Enhorabuena";
             dealerHand.InitialToggle();
             return;
         }
         if (dealerHand.points == 21 || playerHand.points > 21)
         {
-            finalMessage.text = "Pulsen F en sus teclados";
+            finalMessage.text = "Lástima";
             dealerHand.InitialToggle();
             return;
         }
 
+    }
+
+    private void actualizarProbText(float uno, float dos, float tres)
+    {
+        probMessage.text = "Probabilidad que  el dealer tenga más: " + uno + Environment.NewLine +
+            "Probabilidad de pasar de 21: " + dos + Environment.NewLine + 
+            "Probabilidad de estar entre 17 y 21: "  + tres;
+    }
+
+    private float probabilidadDeValor(int value)
+    {
+        int posibles = 0;
+        if(value == 10)
+        {
+            posibles = 12;
+        } else
+        {
+            posibles = 4;
+        }
+        int visibleCardsThatAreTheSame = 0;
+        if(value == 11 || value == 1)
+        {
+            for (int i = 1; i < cardIndex; i++)
+            {
+                if(givenValues[i] == 11 || givenValues[i] == 1)
+                {
+                    if (i != 1) visibleCardsThatAreTheSame++;
+                }
+            }
+        }
+
+        int favorable = posibles - visibleCardsThatAreTheSame;
+        int potencial = 52 - (cardIndex - 1);
+        return (float) ((float)favorable / (float)potencial) * 100;
     }
     
 }
